@@ -530,6 +530,12 @@ extern int srs_flv_write_header(srs_flv_t flv, char header[9]);
 extern int srs_flv_write_tag(srs_flv_t flv, 
     char type, int32_t time, char* data, int size
 );
+
+// add by zhiguangqiu
+extern int srs_flv_write_sps_pps_tag(srs_flv_t flv,
+	int32_t time, char* sps_data, int sps_size, char* pps_data, int pps_size
+);
+
 /**
 * get the tag size, for flv injecter to adjust offset, 
 *       size = tag_header(11B) + data_size + previous_tag(4B)

@@ -32955,6 +32955,33 @@ int srs_flv_write_tag(srs_flv_t flv, char type, int32_t time, char* data, int si
     return ret;
 }
 
+// add by qiuzhiguang
+int srs_flv_write_sps_pps_tag(srs_flv_t flv, int32_t time, char* sps_data, int sps_size, char* pps_data, int pps_size)
+{
+	int ret = ERROR_SUCCESS;
+
+	FlvContext* context = (FlvContext*)flv;
+
+	if (!context->writer.is_open()) {
+		return ERROR_SYSTEM_IO_INVALID;
+	}
+
+	std::string sps(sps_data, sps_size);
+	std::string pps(pps_data, pps_size);
+	std::string sh;
+	SrsRawH264Stream avc_raw;
+	if ((ret = avc_raw.mux_sequence_header(sps, pps, time, time, sh)) != ERROR_SUCCESS) {
+		return ret;
+	}
+
+	char sps_pps_tag_data[256];
+	memcpy(sps_pps_tag_data, "\x17\x00\x00\x00\x00", 5); // AVCVIDEOPACKET
+	memcpy(sps_pps_tag_data + 5, sh.c_str(), sh.size());
+	return context->enc.write_video(time, sps_pps_tag_data, sh.size() + 5);
+
+	return ret;
+}
+
 int srs_flv_size_tag(int data_size)
 {
     return SrsFlvEncoder::size_tag(data_size);
